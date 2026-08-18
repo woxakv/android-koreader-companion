@@ -5,7 +5,7 @@ An Android companion app for [KOReader](https://github.com/koreader/koreader), a
 their own on-disk data (settings, reading history, reading statistics) to show what you're reading
 and how far along you are — in-app and via home-screen widgets — without touching either app.
 
-Built for a Boox Palma 2 (e-ink, Android 13) and a Pixel 9 Pro. Distributed via F-Droid, so it's
+Built for a Boox Palma 2 (e-ink, Android 13) and a Pixel 9 Pro. It's
 fully open source and never asks for All Files Access.
 
 ## Status
