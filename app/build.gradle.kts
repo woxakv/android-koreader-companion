@@ -1,9 +1,19 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose.compiler)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt)
 }
+
+// Release signing is optional: a keystore is only expected on machines producing distributable
+// builds. Its absence (e.g. F-Droid's build server, a fresh checkout) yields an unsigned release
+// APK rather than a failed build.
+val releaseKeystoreProperties = File(System.getProperty("user.home"), "keystores/koreader-companion-release.properties")
+val releaseSigningProps = if (releaseKeystoreProperties.exists()) {
+    Properties().apply { load(releaseKeystoreProperties.inputStream()) }
+} else null
 
 android {
     namespace = "io.github.woxakv.koreadercompanion"
@@ -17,9 +27,23 @@ android {
         versionName = "0.1.0"
     }
 
+    signingConfigs {
+        if (releaseSigningProps != null) {
+            create("release") {
+                storeFile = file(releaseSigningProps.getProperty("storeFile"))
+                storePassword = releaseSigningProps.getProperty("storePassword")
+                keyAlias = releaseSigningProps.getProperty("keyAlias")
+                keyPassword = releaseSigningProps.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
+            if (releaseSigningProps != null) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
 
