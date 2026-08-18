@@ -31,6 +31,17 @@ What works today:
 
 Not built yet: a theme picker (still one fixed black & white e-ink theme by design).
 
+## Screenshots
+
+| Home screen | Stats screen |
+| --- | --- |
+| ![Home screen](docs/screenshots/home-screen.png) | ![Stats screen](docs/screenshots/stats-screen.png) |
+
+| Home-screen widget |
+| --- |
+| ![Home-screen widget](docs/screenshots/home-widget.png) |
+| ![Home-screen widget, close-up](docs/screenshots/home-widget-closeup.png) |
+
 ## How it works
 
 No network access beyond one optional fallback (a Mihon manga's cover art, only when no local copy
