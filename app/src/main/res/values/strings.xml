@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">KOReader Companion</string>
+    <string name="widget_stats_label">Reading Stats</string>
+    <string name="widget_stats_description">Daily reading stats at a glance</string>
+    <string name="widget_calendar_grid_graph_label">Reading Activity</string>
+    <string name="widget_calendar_grid_graph_description">Your reading activity over the last 3 months</string>
+    <string name="widget_currently_reading_label">KOReader - Current book</string>
+    <string name="widget_currently_reading_description">The book you\'re currently reading in KOReader</string>
+    <string name="widget_combined_label">KOReader - Reading Overview</string>
+    <string name="widget_combined_description">Current book, stats, and reading activity together</string>
+    <string name="widget_all_sources_label">All - Reading Overview</string>
+    <string name="widget_all_sources_description">Current KOReader and Mihon books, stats, and reading activity together</string>
+</resources>

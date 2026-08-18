@@ -1,0 +1,111 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Mihon cover art (BackupManga.thumbnailUrl) is a remote HTTPS URL, fetched directly - this
+         app is otherwise fully local/offline (SAF file reads only), so this is its only network use. -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!--
+        Package visibility (Android 11+): without this, PackageManager.getLaunchIntentForPackage
+        silently returns null for Mihon and the "Currently Reading" Mihon card's tap-to-open
+        becomes a no-op - no crash, no log, just nothing happens. KOReader doesn't need an entry
+        here since it's opened via a content:// ACTION_VIEW intent, which the system resolves on
+        this app's behalf regardless of queries visibility.
+    -->
+    <queries>
+        <package android:name="app.mihon" />
+    </queries>
+
+    <application
+        android:name=".app.KoreaderCompanionApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true">
+
+        <activity
+            android:name=".app.MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <receiver
+            android:name=".app.widget.CurrentlyReadingWidgetReceiver"
+            android:exported="false"
+            android:label="@string/widget_currently_reading_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/currently_reading_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name=".app.widget.StatsWidgetReceiver"
+            android:exported="false"
+            android:label="@string/widget_stats_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/stats_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name=".app.widget.CalendarGridGraphWidgetReceiver"
+            android:exported="false"
+            android:label="@string/widget_calendar_grid_graph_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/calendar_grid_graph_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name=".app.widget.CombinedWidgetReceiver"
+            android:exported="false"
+            android:label="@string/widget_combined_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/combined_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name=".app.widget.AllSourcesWidgetReceiver"
+            android:exported="false"
+            android:label="@string/widget_all_sources_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/all_sources_widget_info" />
+        </receiver>
+
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            android:exported="false"
+            tools:node="merge">
+            <meta-data
+                android:name="androidx.work.WorkManagerInitializer"
+                android:value="androidx.startup"
+                tools:node="remove" />
+        </provider>
+
+    </application>
+
+</manifest>
