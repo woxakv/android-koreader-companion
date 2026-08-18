@@ -199,10 +199,3 @@ returning nothing), only FOSS dependencies (LuaJ is MIT-licensed).
   backup schema.
 - **Primary storage only** — `PathSegmentResolver` handles the `primary:` SAF authority; SD cards /
   secondary volumes aren't resolved.
-
-## Reference data
-
-A real KOReader data folder used to ground this implementation lives at `~/Desktop/koreader/`
-(outside this repo, and never committed — it's personal reading history). Test fixtures throughout
-the codebase are small, hand-built synthetic files that match KOReader's and Mihon's file *formats*
-only, never real book, manga, or reading data.
