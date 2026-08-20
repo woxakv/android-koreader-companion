@@ -9,9 +9,11 @@ import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
+import androidx.glance.LocalSize
 import androidx.glance.action.Action
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.LinearProgressIndicator
+import androidx.glance.background
 import androidx.glance.color.ColorProvider
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Column
@@ -33,6 +35,16 @@ import io.github.woxakv.koreadercompanion.presentation.currentlyreading.CurrentB
 // default: no day/night variation to keep.
 private val WidgetTextColor = ColorProvider(day = Color.Black, night = Color.Black)
 
+// Semi-transparent white (80% opacity) so widget content stays readable
+// against a busy home-screen wallpaper (confirmed necessary on a real
+// device) without fully hiding it the way an opaque background would.
+// Applied only via this composable's own default `modifier` - Combined/
+// AllSourcesWidgetContent always pass an explicit modifier for each embedded
+// book card, so this only ever takes effect for the standalone widget, and
+// those two apply the same background once to their own outer container
+// instead (avoiding a "grid of separately-boxed sections" look).
+internal val WidgetBackgroundColor = Color(0xCCFFFFFF)
+
 /**
  * Pure Glance content: no reference to MainActivity/KOReader package
  * lookups or any other Android component construction, so the tap action is
@@ -42,20 +54,35 @@ private val WidgetTextColor = ColorProvider(day = Color.Black, night = Color.Bla
 fun CurrentlyReadingWidgetContent(
     book: CurrentBookUi?,
     onClick: Action,
-    modifier: GlanceModifier = GlanceModifier.fillMaxSize(),
-    coverWidth: Dp = 56.dp,
-    coverHeight: Dp = 84.dp,
+    modifier: GlanceModifier = GlanceModifier.fillMaxSize().background(WidgetBackgroundColor),
+    // Default: scale the cover with however much room the launcher actually
+    // granted, so hosts that hand out more than the declared minimum (250x100dp,
+    // see currently_reading_widget_info.xml) don't leave dead whitespace. Only
+    // meaningful when the widget sets SizeMode.Exact; the embedding widgets
+    // (Combined / All Sources) pass explicit sizes and are unaffected.
+    //
+    // Each axis scales independently on purpose: this widget declares no
+    // maxResizeHeight, so a height-only resize is the common case, and a shared
+    // min()-derived factor would let an unchanged width suppress it entirely.
+    // The box may then drift off 2:3, which is fine - ContentScale.Crop below
+    // crops the source rather than distorting it.
+    // Floor of 1.0 keeps the original tight-and-correct sizing on small hosts
+    // (e.g. the Palma 2); 1.6 caps growth so the cover can't crowd out the text.
+    coverWidth: Dp = 56.dp * (LocalSize.current.width / 250.dp).coerceIn(1.0f, 1.6f),
+    coverHeight: Dp = 84.dp * (LocalSize.current.height / 100.dp).coerceIn(1.0f, 1.6f),
     contentPadding: Dp = 12.dp,
     emptyStateMessage: String = "Open KOReader Companion to set up",
+    // Unbounded by default (existing behavior everywhere except AllSourcesWidgetContent,
+    // which passes 1 to keep two stacked book cards inside a compact fixed
+    // height - see its own call site for why).
+    titleAndAuthorMaxLines: Int = Int.MAX_VALUE,
 ) {
     Row(
-        // No background of our own is drawn here anymore - the launcher/
-        // system background shows through instead, since `modifier` always
-        // fills the allotted bounds regardless of background color (the
-        // gap/border artifact the old white background worked around was
-        // caused by not fully filling the bounds, not by the background
-        // color itself). This has not yet been visually confirmed on-device;
-        // if a border reappears around the widget, revisit this.
+        // A background is back (see WidgetBackgroundColor) - semi-transparent
+        // rather than the old opaque white, and applied via `modifier`
+        // (which always fills the allotted bounds) rather than a separate
+        // draw step, so it doesn't reintroduce the old gap/border artifact
+        // that came from not fully filling the bounds.
         modifier = modifier
             .padding(contentPadding)
             .clickable(onClick),
@@ -83,9 +110,14 @@ fun CurrentlyReadingWidgetContent(
             Text(
                 text = book.title,
                 style = TextStyle(color = WidgetTextColor, fontWeight = FontWeight.Bold, fontSize = 16.sp),
+                maxLines = titleAndAuthorMaxLines,
             )
             book.author?.let {
-                Text(text = it, style = TextStyle(color = WidgetTextColor, fontSize = 13.sp))
+                Text(
+                    text = it,
+                    style = TextStyle(color = WidgetTextColor, fontSize = 13.sp),
+                    maxLines = titleAndAuthorMaxLines,
+                )
             }
             Spacer(GlanceModifier.height(6.dp))
             LinearProgressIndicator(

@@ -10,6 +10,7 @@ import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.action.Action
 import androidx.glance.action.clickable
+import androidx.glance.background
 import androidx.glance.color.ColorProvider
 import androidx.glance.layout.Box
 import androidx.glance.layout.ContentScale
@@ -41,16 +42,14 @@ private val CONTENT_PADDING = 12.dp
 fun CalendarGridGraphWidgetContent(
     bitmap: Bitmap?,
     onClick: Action,
-    modifier: GlanceModifier = GlanceModifier.fillMaxSize(),
+    // Semi-transparent white by default (see CurrentlyReadingWidgetContent's
+    // WidgetBackgroundColor) so the standalone widget stays readable against
+    // a busy wallpaper - only takes effect here, since Combined/AllSources
+    // always pass an explicit modifier and apply the same background once to
+    // their own outer container instead.
+    modifier: GlanceModifier = GlanceModifier.fillMaxSize().background(WidgetBackgroundColor),
 ) {
     Box(
-        // No background of our own is drawn here anymore - the launcher/
-        // system background shows through instead, since `modifier` always
-        // fills the allotted bounds regardless of background color (the
-        // gap/border artifact the old white background worked around was
-        // caused by not fully filling the bounds, not by the background
-        // color itself). This has not yet been visually confirmed on-device;
-        // if a border reappears around the widget, revisit this.
         modifier = modifier
             .padding(CONTENT_PADDING)
             .clickable(onClick),

@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.glance.GlanceId
 import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.provideContent
 import io.github.woxakv.koreadercompanion.app.MainActivity
@@ -24,6 +25,13 @@ private const val SETUP_MESSAGE = "Open KOReader Companion to set up"
 class CurrentlyReadingGlanceWidget(
     private val getCurrentBook: GetCurrentBookUseCase,
 ) : GlanceAppWidget() {
+
+    // Single (the default) composes once for one nominal size and lets the
+    // host stretch the result, which left dead whitespace on launchers that
+    // grant more room than the nominal size. Exact recomposes for the real
+    // current size, so LocalSize (read in CurrentlyReadingWidgetContent to
+    // scale the cover) reflects reality.
+    override val sizeMode: SizeMode = SizeMode.Exact
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         // getCurrentBook() already converts its own failures to Try.Failure,

@@ -8,6 +8,7 @@ import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceModifier
 import androidx.glance.action.Action
 import androidx.glance.action.clickable
+import androidx.glance.background
 import androidx.glance.color.ColorProvider
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
@@ -50,7 +51,14 @@ fun CombinedWidgetContent(
     isRefreshing: Boolean = false,
     bookEmptyStateMessage: String = "Open KOReader Companion to set up",
 ) {
-    Column(modifier = GlanceModifier.fillMaxSize()) {
+    Column(
+        // Semi-transparent white (see CurrentlyReadingWidgetContent's
+        // WidgetBackgroundColor), applied once here rather than per embedded
+        // section below - each of those always gets an explicit modifier
+        // from this call site, so their own default background never
+        // applies, avoiding a "grid of separately-boxed sections" look.
+        modifier = GlanceModifier.fillMaxSize().background(WidgetBackgroundColor),
+    ) {
         Row(
             modifier = GlanceModifier
                 .fillMaxWidth()
@@ -78,7 +86,12 @@ fun CombinedWidgetContent(
         StatsWidgetContent(
             summary = summary,
             onClick = onOtherClick,
-            modifier = GlanceModifier.fillMaxWidth().height(85.dp),
+            // 105dp (was 85dp): StatsWidgetContent's second row now always
+            // renders as two lines instead of one shared line that could
+            // silently wrap-and-clip against a too-short fixed height once
+            // real long-term usage values got wide enough (confirmed
+            // on-device). +20dp accounts for that extra line.
+            modifier = GlanceModifier.fillMaxWidth().height(105.dp),
         )
         CalendarGridGraphWidgetContent(
             bitmap = heatmapBitmap,

@@ -5,7 +5,7 @@ An Android companion app for [KOReader](https://github.com/koreader/koreader), a
 their own on-disk data (settings, reading history, reading statistics) to show what you're reading
 and how far along you are — in-app and via home-screen widgets — without touching either app.
 
-Built for a Boox Palma 2 (e-ink, Android 13) and a Pixel 9 Pro. It's
+Built for a Boox Palma 2 (e-ink, Android 13) and a Pixel 9 Pro. Distributed via F-Droid, so it's
 fully open source and never asks for All Files Access.
 
 ## Status
@@ -179,7 +179,7 @@ else needs it.
 - **AGP 9's built-in Kotlin support** means no `org.jetbrains.kotlin.android` plugin in any Android
   module's `build.gradle.kts` — applying it is now an error, not just redundant.
 - **Robolectric on `compileSdk 36` needs Java 21.** This project targets `compileSdk 35` /
-  `targetSdk 35` specifically to stay on Java 17 (still well above `minSdk 33`); bump only alongside
+  `targetSdk 35` specifically to stay on Java 17 (still well above `minSdk 26`); bump only alongside
   a JDK upgrade.
 - **Hilt 2.60.1** is required — earlier Hilt versions' Gradle plugin doesn't support AGP 9 at all
   (`Android BaseExtension not found`), and AGP 9 fully removed the `android.enableLegacyVariantApi`

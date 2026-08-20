@@ -7,9 +7,9 @@ import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceModifier
 import androidx.glance.action.Action
 import androidx.glance.action.clickable
+import androidx.glance.background
 import androidx.glance.color.ColorProvider
 import androidx.glance.layout.Alignment
-import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
@@ -50,18 +50,16 @@ fun StatsWidgetContent(
     summary: ReadingStatsSummary?,
     rows: List<List<StatItem>> = DEFAULT_STAT_ROWS,
     onClick: Action,
-    modifier: GlanceModifier = GlanceModifier.fillMaxSize(),
+    // Semi-transparent white by default (see CurrentlyReadingWidgetContent's
+    // WidgetBackgroundColor) so the standalone widget stays readable against
+    // a busy wallpaper - only takes effect here, since Combined/AllSources
+    // always pass an explicit modifier and apply the same background once to
+    // their own outer container instead.
+    modifier: GlanceModifier = GlanceModifier.fillMaxSize().background(WidgetBackgroundColor),
 ) {
     val resolvedSummary = summary ?: zeroSummary
 
     Column(
-        // No background of our own is drawn here anymore - the launcher/
-        // system background shows through instead, since `modifier` always
-        // fills the allotted bounds regardless of background color (the
-        // gap/border artifact the old white background worked around was
-        // caused by not fully filling the bounds, not by the background
-        // color itself). This has not yet been visually confirmed on-device;
-        // if a border reappears around the widget, revisit this.
         modifier = modifier
             .padding(8.dp)
             .clickable(onClick),
@@ -75,31 +73,34 @@ fun StatsWidgetContent(
     ) {
         rows.forEachIndexed { rowIndex, row ->
             if (row.size <= 2) {
-                // This Month/This Week: a single centered line combining
-                // both stats ("This Month: 4h 36m · 352 pages   This Week:
-                // 32m · 57 pages") rather than one line per stat - keeps
-                // the whole row to the same one-line height as row 1's
-                // label, instead of doubling the row's height. Only the
-                // value half is bold (matches row 1's label/value weight
-                // split) - Glance's Text has no per-span styling, so this
-                // needs separate label/value Text elements side by side
-                // rather than one Text over a single formatted string,
-                // wrapped in a Box to center the whole line as a group.
-                Box(modifier = GlanceModifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                    Row {
-                        row.forEachIndexed { itemIndex, item ->
-                            Text(
-                                text = "${item.label()}: ",
-                                style = TextStyle(color = WidgetTextColor, fontSize = 13.sp),
-                            )
-                            Text(
-                                text = item.value(resolvedSummary),
-                                style = TextStyle(color = WidgetTextColor, fontWeight = FontWeight.Bold, fontSize = 13.sp),
-                            )
-                            if (itemIndex != row.lastIndex) {
-                                Text(text = "   ", style = TextStyle(fontSize = 13.sp))
-                            }
-                        }
+                // This Month/This Week: one line per stat, each centered.
+                // Previously shared a single line ("This Month: 4h 36m ·
+                // 352 pages   This Week: 32m · 57 pages") to keep this
+                // row the same height as row 1's label - but real
+                // long-term usage produces values wide enough that the
+                // combined line no longer fits, and Glance/RemoteViews
+                // doesn't reflow a Row predictably when that happens: it
+                // silently clipped against the parent's fixed height
+                // instead of wrapping visibly. Always-two-lines trades a
+                // little vertical space for a height that's now fixed and
+                // computable regardless of how large the values get. Only
+                // the value half is bold (matches row 1's label/value
+                // weight split) - Glance's Text has no per-span styling,
+                // so each line still needs separate label/value Text
+                // elements side by side rather than one formatted string.
+                row.forEachIndexed { itemIndex, item ->
+                    Row(modifier = GlanceModifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = "${item.label()}: ",
+                            style = TextStyle(color = WidgetTextColor, fontSize = 13.sp),
+                        )
+                        Text(
+                            text = item.value(resolvedSummary),
+                            style = TextStyle(color = WidgetTextColor, fontWeight = FontWeight.Bold, fontSize = 13.sp),
+                        )
+                    }
+                    if (itemIndex != row.lastIndex) {
+                        Spacer(GlanceModifier.height(2.dp))
                     }
                 }
             } else {

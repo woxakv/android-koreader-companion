@@ -3,7 +3,7 @@
     android:initialLayout="@layout/glance_default_loading_layout"
     android:previewImage="@drawable/preview_stats"
     android:minWidth="280dp"
-    android:minHeight="90dp"
+    android:minHeight="110dp"
     android:targetCellWidth="5"
     android:targetCellHeight="1"
     android:maxResizeWidth="500dp"

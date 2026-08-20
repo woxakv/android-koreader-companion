@@ -1,8 +1,11 @@
 package io.github.woxakv.koreadercompanion.presentation.navigation
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -45,7 +48,17 @@ fun AppNavHost(
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
         ?: startDestination
 
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            // targetSdk 35 makes edge-to-edge the enforced default on
+            // Android 15+ (invisible on the Palma 2's Android 13, which
+            // predates that enforcement - confirmed by a real overlap on a
+            // Pixel 9 Pro) - without this, content draws behind the status
+            // bar/battery icons at the top and the gesture nav bar at the
+            // bottom instead of avoiding them.
+            .windowInsetsPadding(WindowInsets.systemBars),
+    ) {
         NavHost(
             navController = navController,
             startDestination = startDestination,
